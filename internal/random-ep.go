@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func RandomEp(shows []string, species []string, other []string, after time.Time, before time.Time) error {
+func RandomEp(shows []string, species []string, other []string, minDate time.Time, maxDate time.Time, minLen int, maxLen int) error {
 	eps := *data.Episodes
 
 	showFilters, err := parseAllShows(shows)
@@ -27,7 +27,7 @@ func RandomEp(shows []string, species []string, other []string, after time.Time,
 		return err
 	}
 
-	eps = filterEpisodes(eps, showFilters, speciesFilters, otherFilters, &before, &after)
+	eps = filterEpisodes(eps, showFilters, speciesFilters, otherFilters, &minDate, &maxDate, &minLen, &maxLen)
 
 	if len(eps) == 0 {
 		return errors.New("No episode matches filters")

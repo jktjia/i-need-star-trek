@@ -67,12 +67,16 @@ func (e episode) mainView(width int) string {
 		writers = "Writers:   " + writers
 	}
 	summary := []string{""}
-	for _, s := range strings.Split(e.Summary, " ") {
-		last := len(summary) - 1
-		if len(summary[last])+len(s) > width {
-			summary = append(summary, s+" ")
-		} else {
-			summary[last] = summary[last] + s + " "
+	if width == 0 {
+		summary = []string{e.Summary}
+	} else {
+		for _, s := range strings.Split(e.Summary, " ") {
+			last := len(summary) - 1
+			if len(summary[last])+len(s) > width {
+				summary = append(summary, s+" ")
+			} else {
+				summary[last] = summary[last] + s + " "
+			}
 		}
 	}
 	summaryStr := strings.Join(summary, "\n")
@@ -106,5 +110,5 @@ func newEpisode(ep data.EpisodeInfo) episode {
 
 func ViewEpisode(ep data.EpisodeInfo) string {
 	e := newEpisode(ep)
-	return fmt.Sprintf("\n%s\n%s\n", e.headerView(), e.mainView(120))
+	return fmt.Sprintf("\n%s\n%s\n", e.headerView(), e.mainView(0))
 }

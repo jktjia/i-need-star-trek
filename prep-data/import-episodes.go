@@ -105,13 +105,14 @@ func parseRow(row []string, header []string, species []string, events map[string
 			for idx, dir := range l {
 				l[idx] = strings.TrimSpace(dir)
 			}
-			if col == "Director(s)" {
+			switch col {
+			case "Director(s)":
 				e.Directors = &l
-			} else if col == "Writer(s)" {
+			case "Writer(s)":
 				e.Writers = &l
-			} else if col == "Crossover" {
+			case "Crossover":
 				e.Crossover = &l
-			} else if col == "Central Characters" {
+			case "Central Characters":
 				e.MainChars = &l
 			}
 		} else if slices.Contains(species, col) {

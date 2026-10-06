@@ -18,8 +18,11 @@ var (
 	species []string
 	other   []string
 
-	after  time.Time
-	before time.Time
+	minDate time.Time
+	maxDate time.Time
+
+	minLen int
+	maxLen int
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -30,7 +33,7 @@ var rootCmd = &cobra.Command{
 Use flags to limit the random selection to specific shows and categories`,
 	Args: cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		return internal.RandomEp(shows, species, other, after, before)
+		return internal.RandomEp(shows, species, other, minDate, maxDate, minLen, maxLen)
 	},
 }
 
@@ -56,6 +59,9 @@ func init() {
 	rootCmd.Flags().StringSliceVarP(&species, "species", "p", []string{}, "major species in the episode")
 	rootCmd.Flags().StringSliceVarP(&other, "tag", "t", []string{}, "episode tags to filter on")
 
-	rootCmd.Flags().TimeVar(&after, "start-date", time.Date(1960, time.January, 1, 0, 0, 0, 0, time.UTC), dateFormats, "earliest date to include")
-	rootCmd.Flags().TimeVar(&before, "end-date", time.Now(), dateFormats, "latest date to include")
+	rootCmd.Flags().TimeVar(&minDate, "start-date", time.Date(1960, time.January, 1, 0, 0, 0, 0, time.UTC), dateFormats, "start date for possible episodes")
+	rootCmd.Flags().TimeVar(&maxDate, "end-date", time.Now(), dateFormats, "end date for possible episodes")
+
+	rootCmd.Flags().IntVar(&minLen, "min-length", 0, "min episode length in minutes")
+	rootCmd.Flags().IntVar(&maxLen, "max-length", 120, "max episode length in minutes")
 }

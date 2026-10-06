@@ -37,15 +37,16 @@ func importShows(writeJSON bool) *map[string]Show {
 	var startIdx int
 	var endIdx int
 	for i, s := range records[0] {
-		if s == "Full Name" {
+		switch s {
+		case "Full Name":
 			longIdx = i
-		} else if s == "Abbreviation" {
+		case "Abbreviation":
 			shortIdx = i
-		} else if s == "Seasons" {
+		case "Seasons":
 			seasonIdx = i
-		} else if s == "Start Date" {
+		case "Start Date":
 			startIdx = i
-		} else if s == "End Date" {
+		case "End Date":
 			endIdx = i
 		}
 	}

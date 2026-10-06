@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, other []string, before *time.Time, after *time.Time) []data.EpisodeInfo {
+func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, other []string, minDate *time.Time, maxDate *time.Time, minLen *int, maxLen *int) []data.EpisodeInfo {
 	filtered := []data.EpisodeInfo{}
 	for _, ep := range eps {
 		showViable := true
@@ -24,11 +24,17 @@ func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, ot
 			eventViable = eventViable && ep.EpCategory[e]
 		}
 		viable := showViable && speciesViable && eventViable
-		if before != nil && ep.ReleaseDate != nil {
-			viable = viable && ep.ReleaseDate.Compare(*before) < 0
+		if minDate != nil && ep.ReleaseDate != nil {
+			viable = viable && ep.ReleaseDate.Compare(*minDate) > 0
 		}
-		if after != nil && ep.ReleaseDate != nil {
-			viable = viable && ep.ReleaseDate.Compare(*after) > 0
+		if maxDate != nil && ep.ReleaseDate != nil {
+			viable = viable && ep.ReleaseDate.Compare(*maxDate) < 0
+		}
+		if minLen != nil {
+			viable = viable && ep.Length >= *minLen
+		}
+		if maxLen != nil {
+			viable = viable && ep.Length <= *maxLen
 		}
 		if viable {
 			filtered = append(filtered, ep)

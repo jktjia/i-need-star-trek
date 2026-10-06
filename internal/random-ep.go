@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"i-need-star-trek/internal/data"
+	"i-need-star-trek/internal/tui"
 	"math/rand"
 )
 
@@ -34,7 +35,7 @@ func RandomEp(shows []string, species []string, other []string) error {
 	idx := rand.Intn(len(eps))
 	episode := eps[idx]
 
-	fmt.Printf("\n%s\nSeason %d Episode %d\n%s\n\n", (*data.ShowMap)[episode.Show], episode.Season, episode.EpNumber, episode.Name)
+	fmt.Print(tui.ViewEpisode(episode))
 
 	return nil
 }

@@ -14,9 +14,9 @@ func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, ot
 		if len(shows) > 0 {
 			showViable = slices.Contains(shows, ep.Show)
 		}
-		speciesViable := !(len(species) > 0)
+		speciesViable := true
 		for _, s := range species {
-			speciesViable = speciesViable || ep.Species[s]
+			speciesViable = speciesViable && ep.Species[s]
 		}
 		eventViable := true
 		for _, e := range other {
@@ -47,19 +47,14 @@ func parseAllShows(shows []string) ([]string, error) {
 }
 
 func parseShow(show string) (string, error) {
-	uppercase := strings.ToUpper(show)
 	showMap := *data.ShowMap
 
-	_, ok := showMap[uppercase]
-	if ok {
-		return uppercase, nil
-	} else {
-		for k, v := range showMap {
-			if strings.EqualFold(show, v) || strings.EqualFold("Star Trek: "+show, v) {
-				return k, nil
-			}
+	for k, v := range showMap {
+		if strings.EqualFold(show, v.Abbr) || strings.EqualFold(show, v.FullName) || strings.EqualFold("Star Trek: "+show, v.FullName) {
+			return k, nil
 		}
 	}
+
 	return "", errors.New("Unknown show: " + show)
 }
 
@@ -71,7 +66,7 @@ func parseSpecies(species string) (string, error) {
 	knownSpecies := *data.Species
 
 	for _, sp := range knownSpecies {
-		if strings.EqualFold(species, sp) {
+		if strings.EqualFold(species, sp) || strings.EqualFold(species, sp+"s") {
 			return sp, nil
 		}
 	}

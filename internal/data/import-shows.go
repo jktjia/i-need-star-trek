@@ -16,7 +16,7 @@ type Show struct {
 	EndDate   *time.Time `json:"end"`
 }
 
-func importShows(writeJSON bool) *map[string]string {
+func importShows(writeJSON bool) *map[string]Show {
 	f, err := os.Open(showCSV)
 	if err != nil {
 		log.Fatal("Unable to read input file "+showCSV, err)
@@ -29,7 +29,7 @@ func importShows(writeJSON bool) *map[string]string {
 		log.Fatal("Unable to parse file as CSV for "+showCSV, err)
 	}
 
-	showMap := make(map[string]string)
+	showMap := make(map[string]Show)
 
 	var longIdx int
 	var shortIdx int
@@ -72,7 +72,7 @@ func importShows(writeJSON bool) *map[string]string {
 				show.EndDate = &end
 			}
 			show.FullName = cleanString(r[longIdx])
-			showMap[show.Abbr] = show.FullName
+			showMap[show.Abbr] = show
 			showList = append(showList, show)
 		}
 	}

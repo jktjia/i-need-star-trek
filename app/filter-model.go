@@ -13,16 +13,20 @@ import (
 )
 
 type filterModel struct {
+	height          int
 	selectedFilters filters
 	pointer         int
 	viewport        viewport.Model
 	ready           bool
 	tab             int
+	help            help.Model
+	keys            keyMap
 }
 
 func (f filterModel) content() string {
 	filterView := ""
-	if filterTabs[f.tab] == "Show" {
+	switch filterTabs[f.tab] {
+	case "Show":
 		for i, s := range showList {
 			content := " "
 			if slices.Contains(*f.selectedFilters.shows, s.Abbr) {
@@ -35,7 +39,7 @@ func (f filterModel) content() string {
 				filterView += " " + str + "\n"
 			}
 		}
-	} else if filterTabs[f.tab] == "Species" {
+	case "Species":
 		for i, s := range speciesList {
 			content := " "
 			if slices.Contains(*f.selectedFilters.species, s) {
@@ -48,7 +52,7 @@ func (f filterModel) content() string {
 				filterView += " " + str + "\n"
 			}
 		}
-	} else if filterTabs[f.tab] == "Other" {
+	case "Other":
 		for i, e := range eventList {
 			content := " "
 			if slices.Contains(*f.selectedFilters.events, e.Short) {
@@ -96,14 +100,10 @@ var filterKeys = filterKeyMap{
 	),
 }
 
-var (
-	shortFilterKeys = []key.Binding{filterKeys.down, filterKeys.up, filterKeys.toggleSelected}
-	longFilterKeys  = [][]key.Binding{shortFilterKeys, {filterKeys.right, filterKeys.left}}
-)
-
 func (f filterModel) Update(msg tea.Msg) (filterModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
+		f.height = msg.Height
 		footerHeight := lipgloss.Height(f.footerView())
 		headerHeight := lipgloss.Height(f.headerView()) + 1
 		verticalMarginHeight := headerHeight + footerHeight
@@ -126,11 +126,12 @@ func (f filterModel) Update(msg tea.Msg) (filterModel, tea.Cmd) {
 
 		case key.Matches(msg, filterKeys.down):
 			var max int
-			if filterTabs[f.tab] == "Show" {
+			switch filterTabs[f.tab] {
+			case "Show":
 				max = len(showList)
-			} else if filterTabs[f.tab] == "Species" {
+			case "Species":
 				max = len(speciesList)
-			} else if filterTabs[f.tab] == "Other" {
+			case "Other":
 				max = len(eventList)
 			}
 			newVal := min(f.pointer+1, max-1)
@@ -151,22 +152,32 @@ func (f filterModel) Update(msg tea.Msg) (filterModel, tea.Cmd) {
 			}
 
 		case key.Matches(msg, filterKeys.toggleSelected):
-			if filterTabs[f.tab] == "Show" {
+			switch filterTabs[f.tab] {
+			case "Show":
 				if f.pointer < len(showList) {
 					selected := showList[f.pointer]
 					f.selectedFilters.toggleShow(selected)
 				}
-			} else if filterTabs[f.tab] == "Species" {
+			case "Species":
 				if f.pointer < len(speciesList) {
 					selected := speciesList[f.pointer]
 					f.selectedFilters.toggleSpecies(selected)
 				}
-			} else if filterTabs[f.tab] == "Other" {
+			case "Other":
 				if f.pointer < len(eventList) {
 					selected := eventList[f.pointer]
 					f.selectedFilters.toggleEvent(selected)
 				}
 			}
+
+		case key.Matches(msg, f.keys.toggleHelpMenu):
+			f.help.ShowAll = !f.help.ShowAll
+
+			headerHeight := lipgloss.Height(f.headerView())
+			footerHeight := lipgloss.Height(f.footerView())
+			verticalMarginHeight := headerHeight + footerHeight + 1
+
+			f.viewport.Height = f.height - verticalMarginHeight
 		}
 	}
 
@@ -196,24 +207,26 @@ func (f filterModel) headerView() string {
 }
 
 func (f filterModel) footerView() string {
-	return lipgloss.NewStyle().Padding(1, 0, 0).Render(help.New().View(f))
+	return lipgloss.NewStyle().Padding(1, 0, 0).Render(f.help.View(f))
 }
 
 func (f filterModel) ShortHelp() []key.Binding {
-	return shortFilterKeys
+	return []key.Binding{filterKeys.down, filterKeys.up, filterKeys.toggleSelected, f.keys.toggleHelpMenu}
 }
 
 func (f filterModel) FullHelp() [][]key.Binding {
-	return longFilterKeys
+	return [][]key.Binding{f.ShortHelp(), {filterKeys.right, filterKeys.left, f.keys.randomGenerator, f.keys.goBack}}
 }
 
 func (f filterModel) View() string {
 	return fmt.Sprintf("%s\n%s\n%s", f.headerView(), f.viewport.View(), f.footerView())
 }
 
-func newFilters() filterModel {
+func newFilters(keys keyMap) filterModel {
 	f := filterModel{}
 	f.selectedFilters = filters{&[]string{}, &[]string{}, &[]string{}}
 	f.ready = false
+	f.keys = keys
+	f.help = help.New()
 	return f
 }

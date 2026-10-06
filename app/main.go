@@ -37,9 +37,10 @@ var (
 )
 
 type keyMap struct {
-	goBack         key.Binding
-	toggleHelpMenu key.Binding
-	showFilters    key.Binding
+	goBack          key.Binding
+	toggleHelpMenu  key.Binding
+	showFilters     key.Binding
+	randomGenerator key.Binding
 }
 
 func newKeyMap() *keyMap {
@@ -49,12 +50,16 @@ func newKeyMap() *keyMap {
 			key.WithHelp("esc", "go back"),
 		),
 		toggleHelpMenu: key.NewBinding(
-			key.WithKeys("H"),
-			key.WithHelp("H", "toggle help"),
+			key.WithKeys("?"),
+			key.WithHelp("?", "toggle help"),
 		),
 		showFilters: key.NewBinding(
 			key.WithKeys("f"),
-			key.WithHelp("f", "show filters"),
+			key.WithHelp("f", "filter"),
+		),
+		randomGenerator: key.NewBinding(
+			key.WithKeys("r"),
+			key.WithHelp("r", "random ep"),
 		),
 	}
 }
@@ -73,12 +78,12 @@ type model struct {
 
 func newModel() model {
 	var (
-		keys        = newKeyMap()
-		episodes    = getEpisodes()
-		selected    = selectInfo{}
-		filtersBase = newFilters()
+		keys     = newKeyMap()
+		episodes = getEpisodes()
+		selected = selectInfo{}
 	)
 
+	filtersBase := newFilters(*keys)
 	episodeList := newEpisodeList(episodes, keys, &selected)
 
 	return model{
@@ -107,7 +112,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		newFilters, cmd := m.filters.Update(msg)
 		m.filters = newFilters
 		cmds = append(cmds, cmd)
+
 		cmd = m.list.SetEpisodes(m.filters.selectedFilters.filterEpisodes(m.episodes))
+		cmds = append(cmds, cmd)
+
+		newList, cmd := m.list.Update(msg)
+		m.list = newList
 		cmds = append(cmds, cmd)
 	case tea.KeyMsg:
 		switch {
@@ -119,19 +129,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.keys.showFilters):
 			m.showFilters = true
 			return m, nil
-		}
-	}
 
-	if m.showFilters {
-		newFilters, cmd := m.filters.Update(msg)
-		m.filters = newFilters
-		cmds = append(cmds, cmd)
-		cmd = m.list.SetEpisodes(m.filters.selectedFilters.filterEpisodes(m.episodes))
-		cmds = append(cmds, cmd)
-	} else {
-		newList, cmd := m.list.Update(msg)
-		m.list = newList
-		cmds = append(cmds, cmd)
+		case key.Matches(msg, m.keys.randomGenerator):
+			eps := m.filters.selectedFilters.filterEpisodes(m.episodes)
+			idx := rand.Intn(len(eps))
+			m.selected.ep = &eps[idx]
+			return m, nil
+		}
+
+		if m.showFilters {
+			newFilters, cmd := m.filters.Update(msg)
+			m.filters = newFilters
+			cmds = append(cmds, cmd)
+			cmd = m.list.SetEpisodes(m.filters.selectedFilters.filterEpisodes(m.episodes))
+			cmds = append(cmds, cmd)
+		} else {
+			newList, cmd := m.list.Update(msg)
+			m.list = newList
+			cmds = append(cmds, cmd)
+		}
 	}
 
 	return m, tea.Batch(cmds...)

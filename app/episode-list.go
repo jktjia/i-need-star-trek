@@ -22,18 +22,9 @@ func (e episodelist) Update(msg tea.Msg) (episodelist, tea.Cmd) {
 		e.list.SetSize(msg.Width-h, msg.Height-v)
 
 	case tea.KeyMsg:
-		// Don't match any of the keys below if we're actively filtering.
-		if e.list.FilterState() == list.Filtering {
-			break
-		}
-
 		switch {
 		case key.Matches(msg, e.keys.goBack):
 			e.selected.ep = nil
-			return e, nil
-
-		case key.Matches(msg, e.keys.toggleHelpMenu):
-			e.list.SetShowHelp(!e.list.ShowHelp())
 			return e, nil
 		}
 	}
@@ -76,6 +67,12 @@ func newEpisodeList(episodes []episode, keyMap *keyMap, selected *selectInfo) ep
 	episodeList.Title = "Star Trek Episodes"
 	episodeList.Styles.Title = titleStyle
 	episodeList.SetFilteringEnabled(false)
+	episodeList.AdditionalShortHelpKeys = func() []key.Binding {
+		return []key.Binding{keyMap.showFilters, keyMap.randomGenerator}
+	}
+	episodeList.AdditionalFullHelpKeys = func() []key.Binding {
+		return []key.Binding{keyMap.showFilters, keyMap.randomGenerator}
+	}
 
 	return episodelist{
 		episodeList,

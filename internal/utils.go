@@ -5,9 +5,10 @@ import (
 	"i-need-star-trek/internal/data"
 	"slices"
 	"strings"
+	"time"
 )
 
-func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, other []string) []data.EpisodeInfo {
+func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, other []string, before *time.Time, after *time.Time) []data.EpisodeInfo {
 	filtered := []data.EpisodeInfo{}
 	for _, ep := range eps {
 		showViable := true
@@ -22,7 +23,14 @@ func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, ot
 		for _, e := range other {
 			eventViable = eventViable && ep.EpCategory[e]
 		}
-		if showViable && speciesViable && eventViable {
+		viable := showViable && speciesViable && eventViable
+		if before != nil && ep.ReleaseDate != nil {
+			viable = viable && ep.ReleaseDate.Compare(*before) < 0
+		}
+		if after != nil && ep.ReleaseDate != nil {
+			viable = viable && ep.ReleaseDate.Compare(*after) > 0
+		}
+		if viable {
 			filtered = append(filtered, ep)
 		}
 	}

@@ -6,9 +6,10 @@ import (
 	"i-need-star-trek/internal/data"
 	"i-need-star-trek/internal/tui"
 	"math/rand"
+	"time"
 )
 
-func RandomEp(shows []string, species []string, other []string) error {
+func RandomEp(shows []string, species []string, other []string, after time.Time, before time.Time) error {
 	eps := *data.Episodes
 
 	showFilters, err := parseAllShows(shows)
@@ -26,7 +27,7 @@ func RandomEp(shows []string, species []string, other []string) error {
 		return err
 	}
 
-	eps = filterEpisodes(eps, showFilters, speciesFilters, otherFilters)
+	eps = filterEpisodes(eps, showFilters, speciesFilters, otherFilters, &before, &after)
 
 	if len(eps) == 0 {
 		return errors.New("No episode matches filters")

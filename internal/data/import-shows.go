@@ -1,4 +1,4 @@
-package main
+package data
 
 import (
 	"encoding/csv"
@@ -16,7 +16,7 @@ type Show struct {
 	EndDate   *time.Time `json:"end"`
 }
 
-func importShows(writeJSON bool) *map[string]string {
+func importShows(writeJSON bool) *map[string]Show {
 	f, err := os.Open(showCSV)
 	if err != nil {
 		log.Fatal("Unable to read input file "+showCSV, err)
@@ -29,7 +29,7 @@ func importShows(writeJSON bool) *map[string]string {
 		log.Fatal("Unable to parse file as CSV for "+showCSV, err)
 	}
 
-	showMap := make(map[string]string)
+	showMap := make(map[string]Show)
 
 	var longIdx int
 	var shortIdx int
@@ -37,15 +37,16 @@ func importShows(writeJSON bool) *map[string]string {
 	var startIdx int
 	var endIdx int
 	for i, s := range records[0] {
-		if s == "Full Name" {
+		switch s {
+		case "Full Name":
 			longIdx = i
-		} else if s == "Abbreviation" {
+		case "Abbreviation":
 			shortIdx = i
-		} else if s == "Seasons" {
+		case "Seasons":
 			seasonIdx = i
-		} else if s == "Start Date" {
+		case "Start Date":
 			startIdx = i
-		} else if s == "End Date" {
+		case "End Date":
 			endIdx = i
 		}
 	}
@@ -72,7 +73,7 @@ func importShows(writeJSON bool) *map[string]string {
 				show.EndDate = &end
 			}
 			show.FullName = cleanString(r[longIdx])
-			showMap[show.Abbr] = show.FullName
+			showMap[show.Abbr] = show
 			showList = append(showList, show)
 		}
 	}
@@ -83,3 +84,7 @@ func importShows(writeJSON bool) *map[string]string {
 
 	return &showMap
 }
+
+var (
+	ShowMap = importShows(false)
+)

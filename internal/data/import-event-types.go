@@ -1,4 +1,4 @@
-package main
+package data
 
 import (
 	"encoding/csv"
@@ -29,9 +29,10 @@ func importEventTypes(writeJSON bool) *map[string]string {
 	var longIdx int
 	var shortIdx int
 	for i, s := range records[0] {
-		if s == "Event Type" {
+		switch s {
+		case "Event Type":
 			longIdx = i
-		} else if s == "Shortened" {
+		case "Shortened":
 			shortIdx = i
 		}
 	}
@@ -52,3 +53,5 @@ func importEventTypes(writeJSON bool) *map[string]string {
 
 	return &eventTypes
 }
+
+var EventMap = importEventTypes(false)

@@ -1,17 +1,14 @@
-package main
+package interactive
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
+	"i-need-star-trek/internal/data"
 	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 )
-
-const episodeJSON = "../data/star-trek-episodes.json"
 
 type episode struct {
 	Name          string          `json:"name"`
@@ -38,7 +35,7 @@ func (i episode) Description() string {
 	return fmt.Sprintf("%s, %s", i.fullShowName(), i.seasonEpisode())
 }
 func (i episode) fullShowName() string {
-	return showMap[i.Show].FullName
+	return (*data.ShowMap)[i.Show].FullName
 }
 func (i episode) seasonEpisode() string {
 	if i.Season == 0 && (i.EpNumber == 0 || i.EpNumber == 1) {
@@ -51,6 +48,12 @@ func (i episode) seasonEpisode() string {
 }
 func (e episode) FilterValue() string { return e.Name }
 func (e episode) View(width int) string {
+	// base := fmt.Sprintf("%s\n%s\n%s", e.headerView(), e.mainView(width), e.footerView())
+	base := fmt.Sprintf("%s\n%s", e.headerView(), e.mainView(width))
+	return base
+}
+
+func (e episode) mainView(width int) string {
 	showEp := fmt.Sprintf("%s\n%s", e.fullShowName(), e.seasonEpisode())
 	directors := strings.Join(*e.Directors, ", ")
 	if len(*e.Directors) == 1 {
@@ -65,17 +68,20 @@ func (e episode) View(width int) string {
 		writers = "Writers:   " + writers
 	}
 	summary := []string{""}
-	for _, s := range strings.Split(e.Summary, " ") {
-		last := len(summary) - 1
-		if len(summary[last])+len(s) > width {
-			summary = append(summary, s+" ")
-		} else {
-			summary[last] = summary[last] + s + " "
+	if width == 0 {
+		summary = []string{e.Summary}
+	} else {
+		for _, s := range strings.Split(e.Summary, " ") {
+			last := len(summary) - 1
+			if len(summary[last])+len(s) > width {
+				summary = append(summary, s+" ")
+			} else {
+				summary[last] = summary[last] + s + " "
+			}
 		}
 	}
 	summaryStr := strings.Join(summary, "\n")
-	base := fmt.Sprintf("%s\n%s\n\n%s\n\n%s\n%s\n\n%s", e.headerView(), showEp, summaryStr, directors, writers, e.footerView())
-	return base
+	return fmt.Sprintf("%s\n\n%s\n\n%s\n%s", showEp, summaryStr, directors, writers)
 }
 
 func (e episode) headerView() string {
@@ -99,14 +105,11 @@ func (e episode) FullHelp() [][]key.Binding {
 	return [][]key.Binding{e.ShortHelp()}
 }
 
-func getEpisodes() []episode {
-	data, err := os.ReadFile(episodeJSON)
-	if err != nil {
-		panic(err)
-	}
+func newEpisode(ep data.EpisodeInfo) episode {
+	return episode(ep)
+}
 
-	var episodes []episode
-	json.Unmarshal(data, &episodes)
-
-	return episodes
+func ViewEpisode(ep data.EpisodeInfo) string {
+	e := newEpisode(ep)
+	return fmt.Sprintf("\n%s\n%s\n\n", e.headerView(), e.mainView(0))
 }

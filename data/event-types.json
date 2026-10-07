@@ -1,1 +1,11 @@
-[{"fullName":"Transporter","shortened":"transporter"},{"fullName":"Section 31","shortened":"section31"},{"fullName":"Has Cat(s)","shortened":"cat"},{"fullName":"Mirror Universe","shortened":"mirror"},{"fullName":"Sentient (Evil) Computer","shortened":"computer"},{"fullName":"Holodeck","shortened":"holodeck"},{"fullName":"Shuttlecraft","shortened":"shuttlecraft"},{"fullName":"Cave Episode","shortened":"cave"},{"fullName":"Time Nonsense","shortened":"timetravel"}]
+[
+  { "fullName": "Section 31", "shortened": "section31" },
+  { "fullName": "Holodeck", "shortened": "holodeck" },
+  { "fullName": "Has Cat(s)", "shortened": "cat" },
+  { "fullName": "Mirror Universe", "shortened": "mirror" },
+  { "fullName": "Sentient (Evil) Computer", "shortened": "computer" },
+  { "fullName": "Transporter", "shortened": "transporter" },
+  { "fullName": "Shuttlecraft", "shortened": "shuttlecraft" },
+  { "fullName": "Cave Episode", "shortened": "cave" },
+  { "fullName": "Time Nonsense", "shortened": "timetravel" }
+]

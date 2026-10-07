@@ -1,4 +1,4 @@
-package main
+package data
 
 import (
 	"encoding/csv"
@@ -49,7 +49,7 @@ func importEpisodes(species *[]string, events *map[string]string, writeJSON bool
 		if idx == 0 {
 			header = row
 		} else {
-			e := parseRow(row, header, *species, *events)
+			e := parseRow(row, header, *species, *events, writeJSON)
 			episodes = append(episodes, e)
 		}
 	}
@@ -61,7 +61,7 @@ func importEpisodes(species *[]string, events *map[string]string, writeJSON bool
 	return &episodes
 }
 
-func parseRow(row []string, header []string, species []string, events map[string]string) EpisodeInfo {
+func parseRow(row []string, header []string, species []string, events map[string]string, logUnknown bool) EpisodeInfo {
 	var e EpisodeInfo
 	e.Species = make(map[string]bool)
 	e.EpCategory = make(map[string]bool)
@@ -83,7 +83,9 @@ func parseRow(row []string, header []string, species []string, events map[string
 		} else if (col == "Season" || col == "Episode Number" || col == "Part 2 Number" || col == "Length (minutes)") && val != "" {
 			n, err := strconv.Atoi(val)
 			if err != nil {
-				log.Print(err.Error())
+				if logUnknown {
+					log.Print(err.Error())
+				}
 			} else if col == "Season" {
 				e.Season = n
 			} else if col == "Episode Number" {
@@ -105,22 +107,25 @@ func parseRow(row []string, header []string, species []string, events map[string
 			for idx, dir := range l {
 				l[idx] = strings.TrimSpace(dir)
 			}
-			if col == "Director(s)" {
+			switch col {
+			case "Director(s)":
 				e.Directors = &l
-			} else if col == "Writer(s)" {
+			case "Writer(s)":
 				e.Writers = &l
-			} else if col == "Crossover" {
+			case "Crossover":
 				e.Crossover = &l
-			} else if col == "Central Characters" {
+			case "Central Characters":
 				e.MainChars = &l
 			}
 		} else if slices.Contains(species, col) {
 			e.Species[col] = (val == "1")
 		} else if shortName, containsKey := events[col]; containsKey {
 			e.EpCategory[shortName] = (val == "1")
-		} else {
+		} else if logUnknown {
 			log.Print(col)
 		}
 	}
 	return e
 }
+
+var Episodes = importEpisodes(Species, EventMap, false)

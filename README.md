@@ -1,5 +1,5 @@
 # i-need-star-trek
-Sometimes I want to watch Star Trek, but I'm indescisive, so a random episode selector felt like it could be useful
+Sometimes I want to watch Star Trek, but I'm indecisive, so a random episode selector felt like it could be useful
 
 ## Usage
 `i-need-star-trek` is a tool to select random Star Trek episodes to watch. It can be used in two ways: as a command with flags in the terminal or as a terminal user interface (TUI).

@@ -1,4 +1,4 @@
-package internal
+package shared
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, other []string, minDate *time.Time, maxDate *time.Time, minLen *int, maxLen *int) []data.EpisodeInfo {
+func FilterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, other []string, minDate *time.Time, maxDate *time.Time, minLen *int, maxLen *int) []data.EpisodeInfo {
 	filtered := []data.EpisodeInfo{}
 	for _, ep := range eps {
 		showViable := true
@@ -43,7 +43,7 @@ func filterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, ot
 	return filtered
 }
 
-func parseAllStr(strs []string, parseFunc func(s string) (string, error)) ([]string, error) {
+func ParseAllStr(strs []string, parseFunc func(s string) (string, error)) ([]string, error) {
 	parsed := []string{}
 	for i := range strs {
 		str, err := parseFunc(strs[i])
@@ -56,11 +56,11 @@ func parseAllStr(strs []string, parseFunc func(s string) (string, error)) ([]str
 	return parsed, nil
 }
 
-func parseAllShows(shows []string) ([]string, error) {
-	return parseAllStr(shows, parseShow)
+func ParseAllShows(shows []string) ([]string, error) {
+	return ParseAllStr(shows, ParseShow)
 }
 
-func parseShow(show string) (string, error) {
+func ParseShow(show string) (string, error) {
 	showMap := *data.ShowMap
 
 	for k, v := range showMap {
@@ -72,11 +72,11 @@ func parseShow(show string) (string, error) {
 	return "", errors.New("Unknown show: " + show)
 }
 
-func parseAllSpecies(species []string) ([]string, error) {
-	return parseAllStr(species, parseSpecies)
+func ParseAllSpecies(species []string) ([]string, error) {
+	return ParseAllStr(species, ParseSpecies)
 }
 
-func parseSpecies(species string) (string, error) {
+func ParseSpecies(species string) (string, error) {
 	knownSpecies := *data.Species
 
 	for _, sp := range knownSpecies {
@@ -87,11 +87,11 @@ func parseSpecies(species string) (string, error) {
 	return "", errors.New("Unknown species: " + species)
 }
 
-func parseAllOther(other []string) ([]string, error) {
-	return parseAllStr(other, parseOther)
+func ParseAllOther(other []string) ([]string, error) {
+	return ParseAllStr(other, ParseOther)
 }
 
-func parseOther(other string) (string, error) {
+func ParseOther(other string) (string, error) {
 	eventMap := *data.EventMap
 
 	for k, v := range eventMap {
@@ -101,3 +101,25 @@ func parseOther(other string) (string, error) {
 	}
 	return "", errors.New("Unknown event type: " + other)
 }
+
+func ParseDate(dateStr string) (time.Time, error) {
+	for _, format := range DateFormats {
+		date, err := time.Parse(format, dateStr)
+		if err == nil {
+			return date, err
+		}
+	}
+	return time.Now(), errors.New("Invalid time format")
+}
+
+func CanParseDate(dateStr string) error {
+	if dateStr == "" {
+		return nil
+	}
+	_, err := ParseDate(dateStr)
+	return err
+}
+
+var (
+	DateFormats = []string{"2006", "Jan 2006", "January 2006", "1 Jan 2006", "Jan 1 2006", "1 January 2006", "January 1 2006", time.DateOnly}
+)

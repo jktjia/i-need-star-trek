@@ -1,4 +1,4 @@
-package consts
+package shared
 
 import "github.com/charmbracelet/lipgloss"
 

@@ -1,8 +1,13 @@
-package tui
+package interactive
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	huh "charm.land/huh/v2"
+	"charm.land/lipgloss/v2"
+)
 
 var (
+	theme = huh.ThemeCatppuccin
+
 	appStyle = lipgloss.NewStyle().Padding(1, 2)
 
 	titleStyle = lipgloss.NewStyle().
@@ -10,15 +15,14 @@ var (
 			Background(lipgloss.Color("#25A065")).
 			Padding(0, 1)
 
-	accent = lipgloss.AdaptiveColor{Light: "#04B575", Dark: "#04B575"}
+	accent = lipgloss.Color("#04B575")
 
 	statusMessageStyle = lipgloss.NewStyle().Foreground(accent).Render
 
 	selectedStyle = lipgloss.NewStyle().Foreground(accent).BorderLeftForeground(accent)
 	filterStyle   = lipgloss.NewStyle().Padding(1, 1)
 
-	descStyle = lipgloss.NewStyle().Foreground(lipgloss.AdaptiveColor{
-		Light: "#B2B2B2",
-		Dark:  "#4A4A4A",
-	})
+	descStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#4A4A4A"))
+
+	highlight = lipgloss.Color("#7D56F4")
 )

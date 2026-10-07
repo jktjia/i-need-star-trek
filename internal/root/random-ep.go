@@ -1,10 +1,11 @@
-package internal
+package root
 
 import (
 	"errors"
 	"fmt"
 	"i-need-star-trek/internal/data"
-	"i-need-star-trek/internal/tui"
+	"i-need-star-trek/internal/interactive"
+	"i-need-star-trek/internal/shared"
 	"math/rand"
 	"time"
 )
@@ -12,22 +13,22 @@ import (
 func RandomEp(shows []string, species []string, other []string, minDate time.Time, maxDate time.Time, minLen int, maxLen int) error {
 	eps := *data.Episodes
 
-	showFilters, err := parseAllShows(shows)
+	showFilters, err := shared.ParseAllShows(shows)
 	if err != nil {
 		return err
 	}
 
-	speciesFilters, err := parseAllSpecies(species)
+	speciesFilters, err := shared.ParseAllSpecies(species)
 	if err != nil {
 		return err
 	}
 
-	otherFilters, err := parseAllOther(other)
+	otherFilters, err := shared.ParseAllOther(other)
 	if err != nil {
 		return err
 	}
 
-	eps = filterEpisodes(eps, showFilters, speciesFilters, otherFilters, &minDate, &maxDate, &minLen, &maxLen)
+	eps = shared.FilterEpisodes(eps, showFilters, speciesFilters, otherFilters, &minDate, &maxDate, &minLen, &maxLen)
 
 	if len(eps) == 0 {
 		return errors.New("No episode matches filters")
@@ -36,7 +37,7 @@ func RandomEp(shows []string, species []string, other []string, minDate time.Tim
 	idx := rand.Intn(len(eps))
 	episode := eps[idx]
 
-	fmt.Print(tui.ViewEpisode(episode))
+	fmt.Print(interactive.ViewEpisode(episode))
 
 	return nil
 }

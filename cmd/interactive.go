@@ -11,14 +11,13 @@ import (
 
 // interactiveCmd represents the interactive command
 var interactiveCmd = &cobra.Command{
-	Use:   "interactive",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Use:     "interactive",
+	Aliases: []string{"i", "tui"},
+	Short:   "Opens up interactive terminal UI",
+	Long: `This application is a tool to select random Star Trek episodes to watch.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+The interactive version of the app has allows users to view all possible
+episodes that fit filters in addition to selecting random episodes.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		interactive.Start()
 	},

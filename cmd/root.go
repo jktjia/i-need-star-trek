@@ -29,6 +29,7 @@ var rootCmd = &cobra.Command{
 	Use:   "i-need-star-trek",
 	Short: "random Star Trek episode selector",
 	Long: `This application is a tool to select random Star Trek episodes to watch.
+
 Use flags to limit the random selection to specific shows and categories`,
 	Args: cobra.ExactArgs(0),
 	RunE: func(cmd *cobra.Command, args []string) error {

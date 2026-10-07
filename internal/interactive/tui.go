@@ -10,6 +10,7 @@ import (
 	"slices"
 	"time"
 
+	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/list"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/huh/v2"
@@ -83,6 +84,8 @@ func newModel() model {
 	episodeList.SetShowTitle(false)
 	episodeList.SetFilteringEnabled(false)
 	episodeList.SetShowStatusBar(true)
+	episodeList.KeyMap.Quit = key.NewBinding(key.WithKeys("q"),
+		key.WithHelp("q", "quit"))
 	m.epList = episodeList
 
 	// showOptions := []huh.Option[string]{}
@@ -302,6 +305,8 @@ func (m *model) applyFilters() {
 	episodeList.SetShowTitle(false)
 	episodeList.SetFilteringEnabled(false)
 	episodeList.SetShowStatusBar(true)
+	episodeList.KeyMap.Quit = key.NewBinding(key.WithKeys("q"),
+		key.WithHelp("q", "quit"))
 	m.epList = episodeList
 
 	m.updateListProperties()

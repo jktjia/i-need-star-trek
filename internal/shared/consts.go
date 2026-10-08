@@ -1,4 +1,4 @@
-package data
+package shared
 
 const episodeCSV = "data/star-trek-episodes.csv"
 const episodeJSON = "data/star-trek-episodes.json"

@@ -1,49 +1,26 @@
 package shared
 
 import (
+	"encoding/json"
 	"errors"
-	"i-need-star-trek/internal/data"
-	"slices"
+	"log"
+	"os"
 	"strings"
 	"time"
+	"unicode"
 )
 
-func FilterEpisodes(eps []data.EpisodeInfo, shows []string, species []string, other []string, minDate *time.Time, maxDate *time.Time, minLen *int, maxLen *int) []data.EpisodeInfo {
-	filtered := []data.EpisodeInfo{}
-	for _, ep := range eps {
-		showViable := true
-		if len(shows) > 0 {
-			showViable = slices.Contains(shows, ep.Show)
+func cleanString(s string) string {
+	cleaned := strings.Map(func(r rune) rune {
+		if unicode.IsGraphic(r) {
+			return r
 		}
-		speciesViable := true
-		for _, s := range species {
-			speciesViable = speciesViable && ep.Species[s]
-		}
-		eventViable := true
-		for _, e := range other {
-			eventViable = eventViable && ep.EpCategory[e]
-		}
-		viable := showViable && speciesViable && eventViable
-		if minDate != nil && ep.ReleaseDate != nil {
-			viable = viable && ep.ReleaseDate.Compare(*minDate) > 0
-		}
-		if maxDate != nil && ep.ReleaseDate != nil {
-			viable = viable && ep.ReleaseDate.Compare(*maxDate) < 0
-		}
-		if minLen != nil {
-			viable = viable && ep.Length >= *minLen
-		}
-		if maxLen != nil {
-			viable = viable && ep.Length <= *maxLen
-		}
-		if viable {
-			filtered = append(filtered, ep)
-		}
-	}
-	return filtered
+		return -1
+	}, s)
+	return strings.TrimSpace(cleaned)
 }
 
-func ParseAllStr(strs []string, parseFunc func(s string) (string, error)) ([]string, error) {
+func parseAllStr(strs []string, parseFunc func(s string) (string, error)) ([]string, error) {
 	parsed := []string{}
 	for i := range strs {
 		str, err := parseFunc(strs[i])
@@ -57,11 +34,11 @@ func ParseAllStr(strs []string, parseFunc func(s string) (string, error)) ([]str
 }
 
 func ParseAllShows(shows []string) ([]string, error) {
-	return ParseAllStr(shows, ParseShow)
+	return parseAllStr(shows, parseShow)
 }
 
-func ParseShow(show string) (string, error) {
-	showMap := *data.ShowMap
+func parseShow(show string) (string, error) {
+	showMap := ShowMap
 
 	for k, v := range showMap {
 		if strings.EqualFold(show, v.Abbr) || strings.EqualFold(show, v.FullName) || strings.EqualFold("Star Trek: "+show, v.FullName) {
@@ -73,11 +50,11 @@ func ParseShow(show string) (string, error) {
 }
 
 func ParseAllSpecies(species []string) ([]string, error) {
-	return ParseAllStr(species, ParseSpecies)
+	return parseAllStr(species, parseSpecies)
 }
 
-func ParseSpecies(species string) (string, error) {
-	knownSpecies := *data.Species
+func parseSpecies(species string) (string, error) {
+	knownSpecies := Species
 
 	for _, sp := range knownSpecies {
 		if strings.EqualFold(species, sp) || strings.EqualFold(species, sp+"s") {
@@ -88,11 +65,11 @@ func ParseSpecies(species string) (string, error) {
 }
 
 func ParseAllOther(other []string) ([]string, error) {
-	return ParseAllStr(other, ParseOther)
+	return parseAllStr(other, parseOther)
 }
 
-func ParseOther(other string) (string, error) {
-	eventMap := *data.EventMap
+func parseOther(other string) (string, error) {
+	eventMap := EventMap
 
 	for k, v := range eventMap {
 		if strings.EqualFold(other, k) {
@@ -120,6 +97,18 @@ func CanParseDate(dateStr string) error {
 	return err
 }
 
-var (
-	DateFormats = []string{"2006", "Jan 2006", "January 2006", "1 Jan 2006", "Jan 1 2006", "1 January 2006", "January 1 2006", time.DateOnly}
-)
+func writeJSONFile[T any](path string, data []T) {
+	file, err := os.Create(path)
+
+	if err != nil {
+		log.Fatal("Unable to write output file for "+path, err)
+	}
+
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		log.Fatal("Unable to marshal data for "+path, err)
+	}
+
+	file.Write(bytes)
+	log.Print("Successfully created file " + path)
+}

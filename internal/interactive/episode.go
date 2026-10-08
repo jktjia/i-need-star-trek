@@ -2,7 +2,7 @@ package interactive
 
 import (
 	"fmt"
-	"i-need-star-trek/internal/data"
+	"i-need-star-trek/internal/shared"
 	"strings"
 	"time"
 
@@ -35,7 +35,7 @@ func (i episode) Description() string {
 	return fmt.Sprintf("%s, %s", i.fullShowName(), i.seasonEpisode())
 }
 func (i episode) fullShowName() string {
-	return (*data.ShowMap)[i.Show].FullName
+	return (shared.ShowMap)[i.Show].FullName
 }
 func (i episode) seasonEpisode() string {
 	if i.Season == 0 && (i.EpNumber == 0 || i.EpNumber == 1) {
@@ -105,11 +105,11 @@ func (e episode) FullHelp() [][]key.Binding {
 	return [][]key.Binding{e.ShortHelp()}
 }
 
-func newEpisode(ep data.EpisodeInfo) episode {
+func newEpisode(ep shared.EpisodeInfo) episode {
 	return episode(ep)
 }
 
-func ViewEpisode(ep data.EpisodeInfo) string {
+func ViewEpisode(ep shared.EpisodeInfo) string {
 	e := newEpisode(ep)
 	return fmt.Sprintf("\n%s\n%s\n\n", e.headerView(), e.mainView(0))
 }

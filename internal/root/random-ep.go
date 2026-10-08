@@ -3,7 +3,6 @@ package root
 import (
 	"errors"
 	"fmt"
-	"i-need-star-trek/internal/data"
 	"i-need-star-trek/internal/interactive"
 	"i-need-star-trek/internal/shared"
 	"math/rand"
@@ -11,8 +10,6 @@ import (
 )
 
 func RandomEp(shows []string, species []string, other []string, minDate time.Time, maxDate time.Time, minLen int, maxLen int) error {
-	eps := *data.Episodes
-
 	showFilters, err := shared.ParseAllShows(shows)
 	if err != nil {
 		return err
@@ -28,7 +25,7 @@ func RandomEp(shows []string, species []string, other []string, minDate time.Tim
 		return err
 	}
 
-	eps = shared.FilterEpisodes(eps, showFilters, speciesFilters, otherFilters, &minDate, &maxDate, &minLen, &maxLen)
+	eps := shared.FilterEpisodes(shared.Episodes, showFilters, speciesFilters, otherFilters, &minDate, &maxDate, &minLen, &maxLen)
 
 	if len(eps) == 0 {
 		return errors.New("No episode matches filters")

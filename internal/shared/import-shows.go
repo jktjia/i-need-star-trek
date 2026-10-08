@@ -1,4 +1,4 @@
-package data
+package shared
 
 import (
 	"encoding/csv"
@@ -84,7 +84,3 @@ func importShows(writeJSON bool) *map[string]Show {
 
 	return &showMap
 }
-
-var (
-	ShowMap = importShows(false)
-)

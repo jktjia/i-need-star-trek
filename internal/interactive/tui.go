@@ -3,7 +3,6 @@ package interactive
 import (
 	"errors"
 	"fmt"
-	"i-need-star-trek/internal/data"
 	"i-need-star-trek/internal/shared"
 	"maps"
 	"math/rand"
@@ -79,7 +78,7 @@ func newModel() model {
 	m.tabs.active = "Episodes"
 
 	items := []list.Item{}
-	for _, e := range *data.Episodes {
+	for _, e := range shared.Episodes {
 		items = append(items, newEpisode(e))
 	}
 
@@ -125,13 +124,13 @@ func newModel() model {
 
 func (m *model) newForm() {
 	showOptions := []huh.Option[string]{}
-	showList := slices.SortedFunc(maps.Values(*data.ShowMap), func(s1, s2 data.Show) int { return s1.StartDate.Compare(*s2.StartDate) })
+	showList := slices.SortedFunc(maps.Values(shared.ShowMap), func(s1, s2 shared.Show) int { return s1.StartDate.Compare(*s2.StartDate) })
 	for _, show := range showList {
 		showOptions = append(showOptions, huh.NewOption(show.FullName, show.Abbr))
 	}
 
 	tagOptions := []huh.Option[string]{}
-	for k, v := range *data.EventMap {
+	for k, v := range shared.EventMap {
 		tagOptions = append(tagOptions, huh.NewOption(k, v))
 	}
 
@@ -197,7 +196,7 @@ func (m *model) newForm() {
 		huh.NewGroup(
 			huh.NewMultiSelect[string]().
 				Key("species").
-				Options(huh.NewOptions(*data.Species...)...).
+				Options(huh.NewOptions(shared.Species...)...).
 				Title("Species in the episodes:").
 				Height(8).
 				Value(m.species),
@@ -350,7 +349,7 @@ func (m *model) applyFilters() {
 		maxLen = &i
 	}
 
-	eps := shared.FilterEpisodes(*data.Episodes, *m.shows, *m.species, *m.tags, minDate, maxDate, minLen, maxLen)
+	eps := shared.FilterEpisodes(shared.Episodes, *m.shows, *m.species, *m.tags, minDate, maxDate, minLen, maxLen)
 
 	items := []list.Item{}
 	for _, e := range eps {

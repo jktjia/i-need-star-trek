@@ -1,4 +1,4 @@
-package data
+package shared
 
 import (
 	"encoding/csv"
@@ -128,4 +128,4 @@ func parseRow(row []string, header []string, species []string, events map[string
 	return e
 }
 
-var Episodes = importEpisodes(Species, EventMap, false)
+var Episodes = importEpisodes(species, EventMap, false)

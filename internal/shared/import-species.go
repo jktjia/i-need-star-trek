@@ -1,4 +1,4 @@
-package data
+package shared
 
 import (
 	"encoding/csv"
@@ -34,4 +34,5 @@ func importSpecies(writeJSON bool) *[]string {
 	return &species
 }
 
-var Species = importSpecies(false)
+var species = importSpecies(false)
+var Species = *importSpecies(false)

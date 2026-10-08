@@ -1,4 +1,4 @@
-package data
+package shared
 
 import (
 	"encoding/csv"
@@ -54,4 +54,4 @@ func importEventTypes(writeJSON bool) *map[string]string {
 	return &eventTypes
 }
 
-var EventMap = importEventTypes(false)
+var eventMap = importEventTypes(false)

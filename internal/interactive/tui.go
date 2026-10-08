@@ -1,6 +1,7 @@
 package interactive
 
 import (
+	"errors"
 	"fmt"
 	"i-need-star-trek/internal/data"
 	"i-need-star-trek/internal/shared"
@@ -8,6 +9,7 @@ import (
 	"math/rand"
 	"os"
 	"slices"
+	"strconv"
 	"time"
 
 	"charm.land/bubbles/v2/key"
@@ -52,6 +54,8 @@ type model struct {
 	filterForm *huh.Form
 	minDate    *string
 	maxDate    *string
+	minLen     *string
+	maxLen     *string
 	shows      *[]string
 	species    *[]string
 	tags       *[]string
@@ -103,6 +107,10 @@ func newModel() model {
 	m.minDate = &emptyStr
 	emptyStr2 := ""
 	m.maxDate = &emptyStr2
+	emptyStr3 := ""
+	m.minLen = &emptyStr3
+	emptyStr4 := ""
+	m.maxLen = &emptyStr4
 	emptySlice := []string{}
 	m.shows = &emptySlice
 	emptySlice2 := []string{}
@@ -142,6 +150,41 @@ func (m *model) newForm() {
 				Title("End date").
 				Validate(shared.CanParseDate).
 				Value(m.maxDate),
+
+			huh.NewInput().
+				Key("minLen").
+				Title("Min Length (minutes)").
+				Validate(func(s string) error {
+					if s != "" {
+						i, err := strconv.Atoi(s)
+						if err != nil {
+							return errors.New("min length must be an integer")
+						} else if i < 0 {
+							return errors.New("min length must be positive")
+						}
+					}
+					return nil
+				}).
+				Value(m.minLen),
+
+			huh.NewInput().
+				Key("maxLen").
+				Title("Max Length (minutes)").
+				Validate(func(s string) error {
+					if s != "" {
+						i, err := strconv.Atoi(s)
+						if err != nil {
+							return errors.New("max length must be an integer")
+						} else {
+							min, err := strconv.Atoi(*m.minLen)
+							if err == nil && i < min {
+								return errors.New("max length must not be less than min length")
+							}
+						}
+					}
+					return nil
+				}).
+				Value(m.maxLen),
 
 			huh.NewMultiSelect[string]().
 				Key("shows").
@@ -293,7 +336,21 @@ func (m *model) applyFilters() {
 		maxDate = &d
 	}
 
-	eps := shared.FilterEpisodes(*data.Episodes, *m.shows, *m.species, *m.tags, minDate, maxDate, nil, nil)
+	minLenStr := *m.minLen
+	var minLen *int
+	if minLenStr != "" {
+		i, _ := strconv.Atoi(minLenStr)
+		minLen = &i
+	}
+
+	maxLenStr := *m.maxLen
+	var maxLen *int
+	if maxLenStr != "" {
+		i, _ := strconv.Atoi(maxLenStr)
+		maxLen = &i
+	}
+
+	eps := shared.FilterEpisodes(*data.Episodes, *m.shows, *m.species, *m.tags, minDate, maxDate, minLen, maxLen)
 
 	items := []list.Item{}
 	for _, e := range eps {

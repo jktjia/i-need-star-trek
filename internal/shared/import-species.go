@@ -33,6 +33,3 @@ func importSpecies(writeJSON bool) *[]string {
 
 	return &species
 }
-
-var species = importSpecies(false)
-var Species = *importSpecies(false)

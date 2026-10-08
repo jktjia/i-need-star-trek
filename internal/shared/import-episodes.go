@@ -127,5 +127,3 @@ func parseRow(row []string, header []string, species []string, events map[string
 	}
 	return e
 }
-
-var Episodes = importEpisodes(species, EventMap, false)

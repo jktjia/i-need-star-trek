@@ -8,9 +8,9 @@ import (
 var (
 	DateFormats = []string{"2006", "Jan 2006", "January 2006", "1 Jan 2006", "Jan 1 2006", "1 January 2006", "January 1 2006", time.DateOnly}
 
-	Episodes = *importEpisodes(species, eventMap, false)
-	EventMap = *eventMap
-	Species  = *species
+	Episodes = *importEpisodes(importSpecies(false), importEventTypes(false), false)
+	EventMap = *importEventTypes(false)
+	Species  = *importSpecies(false)
 	ShowMap  = *importShows(false)
 )
 

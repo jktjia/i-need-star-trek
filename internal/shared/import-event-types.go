@@ -53,5 +53,3 @@ func importEventTypes(writeJSON bool) *map[string]string {
 
 	return &eventTypes
 }
-
-var eventMap = importEventTypes(false)
